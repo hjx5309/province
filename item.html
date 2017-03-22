@@ -1,0 +1,260 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" id="iphone-viewport" content="minimum-scale=1.0, maximum-scale=1.0, width=device-width" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <style type="text/css">
+        body {
+            width: 100%;
+            background-position: inherit;
+            margin: 0px;
+            padding: 0;;
+        }
+
+        ul,
+        li,
+        div {
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="UIPickerView.css">
+    <script type="text/javascript" src="./src/UIPickerView.js"></script>
+    <script type="text/javascript" src="./src/CAAnimation.js"></script>
+    <script src="jquery-1.11.1.min.js"></script>
+</head>
+
+<body>
+<!--<button id="create-picker">open picker</button>
+<button id="close-picker">close picker</button>-->
+<div class="content" id="create-picker" code="" style="border: 2px solid #000;height: 40px;line-height: 40px"></div>
+<div class="region-picker-wrapper visibility-control" id="region-picker">
+    <div class="header">
+        <div class="bar bar-header">
+            <button class="button button-clear" id="selectClose">关闭</button>
+            <div class="h3 title">选择地址</div>
+            <button class="button button-clear button-positive" id="selectYes">确认</button>
+        </div>
+    </div>
+    <div class="body">
+        <div class="select-zone top"></div>
+        <div class="select-zone middle"></div>
+        <div class="select-zone bottom"></div>
+        <div class="region-picker">
+            <div id="provincePicker"></div>
+        </div>
+        <div class="region-picker">
+            <div id="cityPicker"></div>
+        </div>
+        <div class="region-picker">
+            <div id="areaPicker"></div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var pickerCreate = document.getElementById('create-picker');
+    var pickerOpen = document.getElementById('open-picker');
+    var pickerClose = document.getElementById('close-picker');
+    var up, up1, up2, animaed;
+    var selectYes = document.getElementById('selectYes');
+    var selectClose = document.getElementById('selectClose');
+    var data = [{
+        "key": "111111",
+        "value": "Swift"
+    }, {
+        "key": "iOS",
+        "value": "iOS"
+    }, {
+        "key": "Objective-C",
+        "value": "Objective-C"
+    }, {
+        "key": "back homeTown",
+        "value": "back homeTown"
+    }, {
+        "key": "github",
+        "value": "github"
+    }, {
+        "key": "icepy",
+        "value": "icepy"
+    }];
+    var data2 = [{
+        "key": "222",
+        "value": "555"
+    }, {
+        "key": "333",
+        "value": "iOS"
+    }, {
+        "key": "Objective-C",
+        "value": "Objective-C"
+    }, {
+        "key": "back homeTown",
+        "value": "back homeTown"
+    }, {
+        "key": "github",
+        "value": "github"
+    }, {
+        "key": "icepy",
+        "value": "icepy"
+    }];
+    var Data=[{北京市:110000},{北京市市辖区:110100 },{东城区:110101 },{西城区:110102},
+        {河北省:130000},{石家庄市:130100},{石家庄市市辖区:　130101},{长安区:130102},
+        {唐山市:130200},{唐山市市辖区:130201},{路南区:130202}]
+
+    function code2Name(num,rr){
+        var ee={}
+        for(var a=0;a<Data.length;a++){
+            var jd=Data[a]
+            for(var i in jd){
+                if(num==jd[i]){
+                    ee.key=num;
+                    ee.value=i;
+                    rr.push(ee);
+                    break;
+                }
+            }
+        }
+    }
+    function Name(num){
+        var rr=[];//将获取到数组依次在data里面搜索，将符合条件的对象输数组里面去
+        for(var i=0;i<num[i];i++){
+            code2Name(num[i],rr);
+        }
+        return rr;
+    }
+    //为了给省的补零
+    function numProvince(){
+        var kk=[];
+        for(var i=11;i<100;i++){
+            var dd=i+"0000"
+            kk.push(dd)
+        }
+        return kk;
+    }
+    //给市补零
+    function numCity(num){
+        var kk=[];
+        for(var i=1;i<100;i++){
+            i= i.toString();
+            if(i.length<2){
+                i="0"+i
+            }
+            var dd=num+i+"00"
+            kk.push(dd)
+        }
+        return kk;
+    }
+    //给区补零
+    function numQu(num){
+        var kk=[];
+        for(var i=1;i<100;i++){
+            i= i.toString();
+            if(i.length<2){
+                i="0"+i
+            }
+            var dd=num+i;
+            kk.push(dd)
+        }
+        return kk;
+    }
+    //获取前几位数字,num表示传入的数字，x表示获取前第几位数字
+    function cutNum(num,x){
+        var letter= num.substr(0,x);
+        return letter
+    }
+    var mm=numProvince()//获取省的行政编码的数组
+    var Province=Name(mm)//根据这个数组进行搜索，得到对应的省和他的编码
+
+   var City=Name(numCity(cutNum(Province[0].key,2)))
+   var Area=Name(numQu(cutNum(City[0].key,4)))
+    //初始化，默认输入的地址，为省的第一个，该省的对应城市的第一个，对应该城市的第一个县
+    up1Data=Province[0];
+    up2Data=City[0]
+    up3Data=Area[0]
+    $(".content").html(up1Data.value+","+up2Data.value+","+ up3Data.value).attr("code",up3Data.key);
+
+    selectYes.addEventListener('click', function() {
+        animaed.finish();//
+        console.log(up1Data);
+        console.log(up2Data);
+        console.log(up3Data);
+        //如果
+        if (!up1Data && up) {
+            up.UPSelectRowIndexPath(1).UPThen(function(indexPath, value) {
+                console.log(value);
+            })
+        };
+
+    })
+
+    selectClose.addEventListener('click', function() {
+        animaed.finish();
+    })
+    var clickTimes=false
+    pickerCreate.addEventListener('click', function() {
+        if(clickTimes==false){
+            up = UIPickerView.createPickerView({
+                dataSource: Province,
+                id: 'provincePicker',
+                constraintsId: 'wower',
+                kUP: {
+                    kUPCELLHEIGHT: 26,
+                    kUPFRICTION: 0.003
+                },
+                valueChange: function(data) {
+                    console.log(data);
+                    up1Data = data;
+                    var City=Name(numCity(cutNum(data.key,2)))
+                    up2Data=City[0]
+                    up1.UPRender(City);
+                    var Area=Name(numQu(cutNum(City[0].key,4)));
+                    up3Data=Area[0]
+                    up2.UPRender(Area);
+                    $(".content").html(up1Data.value+","+up2Data.value+","+ up3Data.value).attr("code",up3Data.key);
+                }
+            });
+            up1 = UIPickerView.createPickerView({
+                dataSource: City,
+                id: 'cityPicker',
+                constraintsId: 'wower1',
+                kUP: {
+                    kUPCELLHEIGHT: 26,
+                    kUPFRICTION: 0.003
+                },
+                valueChange: function(data) {
+                    console.log(data);
+                    up2Data = data;
+                    console.log(cutNum(data.key,4))
+                    var Area=Name(numQu(cutNum(data.key,4)));
+                    up3Data=Area[0]
+                    up2.UPRender(Area);
+                    $(".content").html(up1Data.value+","+up2Data.value+","+ up3Data.value).attr("code",up3Data.key);
+                }
+            });
+            up2 = UIPickerView.createPickerView({
+                dataSource: Area,
+                id: 'areaPicker',
+                constraintsId: 'wower2',
+                kUP: {
+                    kUPCELLHEIGHT: 26,
+                    kUPFRICTION: 0.003
+                },
+                valueChange: function(data) {
+                    console.log(data);
+                    up3Data = data;
+                    $(".content").html(up1Data.value+","+up2Data.value+","+ up3Data.value).attr("code",up3Data.key);
+                }
+            });
+            animaed = CAAnimation.createAnimation({
+                id: 'region-picker'
+            });
+            animaed.start();
+            clickTimes=true;
+        }else{
+            animaed.start();
+        }
+    });
+</script>
+</body>
+
+</html>

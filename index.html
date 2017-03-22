@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm.css">
+
+</head>
+<body>
+<div class="page-group">
+    <div class="page page-current">
+        <input type="text" id='city-picker'/>
+    </div>
+</div>
+
+
+<script type='text/javascript' src='//g.alicdn.com/sj/lib/zepto/zepto.js' charset='utf-8'></script>
+<script type='text/javascript' src='//g.alicdn.com/msui/sm/0.6.2/js/sm.js' charset='utf-8'></script>
+<script type="text/javascript" src="//g.alicdn.com/msui/sm/0.6.2/js/sm-city-picker.min.js" charset="utf-8"></script>
+<script>
+
+    var date=[{北京市:110000},{北京市市辖区:110100 },{东城区:110101 },{西城区:110102},
+        {河北省:130000},{石家庄市:130100},{石家庄市市辖区:　130101},{长安区:130102},
+        {唐山市:130200},{唐山市市辖区:130201},{路南区:130202}]
+    //单一数字在数据中返回数字
+    function code2Name(num,rr){
+        var ee={}
+        for(var a=0;a<date.length;a++){
+            var jd=date[a]
+            for(var i in jd){
+                if(num==jd[i]){
+                    ee[i]=jd[i];//将符合条件的值给另一个对象
+                    rr.push(ee);
+                    break;
+                }
+            }
+        }
+    }
+    function Name(num){
+        var rr=[];//将获取到数组依次在data里面搜索，将符合条件的对象输数组里面去
+        for(var i=0;i<num[i];i++){
+            code2Name(num[i],rr);
+        }
+        return rr;
+    }
+    //从01开始
+    /*function num2String(){
+     var tt=[];
+     for(var i=01;i<100;i++){
+     i=i.toString()
+     if(i.length<2){
+     i="0"+i;
+     }
+     tt.push(i)
+     }
+     return tt
+     }
+     function num2String1(){
+     var tt=[];
+     for(var i=00;i<100;i++){
+     i=i.toString()
+     if(i.length<2){
+     i="0"+i;
+     }
+     tt.push(i)
+     }
+     return tt
+     }*/
+    //为了给省的补零
+    function numProvince(){
+        var kk=[];
+        for(var i=11;i<100;i++){
+            var dd=i+"0000"
+            kk.push(dd)
+        }
+        return kk;
+    }
+    //给市补零
+    function numCity(num){
+        var kk=[];
+        for(var i=1;i<100;i++){
+            i= i.toString();
+            if(i.length<2){
+                i="0"+i
+            }
+            var dd=num+i+"00"
+            kk.push(dd)
+        }
+        return kk;
+    }
+    //给区补零
+    function numQu(num){
+        var kk=[];
+        for(var i=1;i<100;i++){
+            i= i.toString();
+            if(i.length<2){
+                i="0"+i
+            }
+            var dd=num+i;
+            kk.push(dd)
+        }
+        return kk;
+    }
+    //获取前几位数字,num表示传入的数字，x表示获取前第几位数字
+    function cutNum(num,x){
+        var letter= num.substr(0,x);
+        return letter
+    }
+
+    var selDom = $("#sheng");
+    var selCity=$("#shi");
+    var selQu=$("#qu")
+    var mm=numProvince()//获取省的行政编码的数组
+    var Province=Name(mm)//根据这个数组进行搜索，得到对应的省和他的编码
+    var tt=[];
+    var gg=[]
+    for(var i=0;i<Province.length;i++){//把这个数据放到对应的节点上
+        for(var j in Province[i]){
+           // selDom.append("<option value="+Province[i][j]+">"+j+"</option>")
+            tt.push(j)
+            gg.push(Province[i][j])
+        }
+    }
+/*    $("#sheng").change(function(){//当省的值发生改变的时候
+        var shengValue=$(this).val();
+        if($(this).val()==0){//如果选择的值为0，就清空其他两个的数据
+            selCity.empty();
+            selCity.append("<option value=0>请选择</option>")
+            selQu.empty();
+            selQu.append("<option value=0>请选择</option>")
+        }else{//如果选择的值不为0，就清空其他两个的数据
+            var shengChange=cutNum(shengValue,2);//获取省改变以后的值，并获取前两位，已得到这个省的市
+            var rf=numCity(shengChange);//给市的编号补零
+            selQu.empty();
+            selQu.append("<option value=0>请选择</option>")
+            selCity.empty();
+            var City=Name(rf)//根据数据去搜索城市
+            for(var i=0;i<City.length;i++){
+                for(var j in City[i]){
+                    selCity.append("<option value="+City[i][j]+">"+j+"</option>")
+                }
+            }//把城市加到对应的城市的节点下面
+            var checkText=$("#shi").find("option:selected").val();//在获取城市的第一个的数据值
+            if(checkText!=0){
+                selQu.empty();
+                var quChange=cutNum(checkText,4);//获取他的前4位
+                var quArea=numQu(quChange);//给这个城市的值补零
+                var qu=Name(quArea);//根据这个数组去获取县或者区的值
+                for(var i=0;i<qu.length;i++){//将这个数据放到对应的节点西面
+                    for(var j in qu[i]){
+                        selQu.append("<option value="+qu[i][j]+">"+j+"</option>")
+                    }
+                }
+            }
+
+        }
+    })
+    $("#shi").change(function(){
+        var quValue=$(this).val();
+        if($(this).val()==0){
+            selQu.empty();
+            selQu.append("<option value=0>请选择</option>")
+        }else{
+            var quChange=cutNum(quValue,4);
+            var quArea=numQu(quChange);
+            selQu.empty();
+            var qu=Name(quArea);
+            for(var i=0;i<qu.length;i++){
+                for(var j in qu[i]){
+                    selQu.append("<option value="+qu[i][j]+">"+j+"</option>")
+                }
+            }
+        }
+    })*/
+</script>
+
+<script>
+    $.init()
+    $("#city-picker").cityPicker({
+        toolbarTemplate: '<header class="bar bar-nav">\
+    <button class="button button-link pull-right close-picker">确定</button>\
+    <h1 class="title">选择收货地址</h1>\
+    </header>'
+    });
+</script>
+
+</body>
+</html>
+<script>
+
+</script>
