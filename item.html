@@ -172,8 +172,43 @@
     up2Data=City[0]
     up3Data=Area[0]
     $(".content").html(up1Data.value+","+up2Data.value+","+ up3Data.value).attr("code",up3Data.key);
-
+ //在数据里面的寻找code对应的名称
+    function diffName(code){
+        var codeNames={};
+        for(var i=0;i< Data.length;i++){
+            var jd=Data[i]
+            for(var a in jd)
+            if(code==jd[a]){
+                codeNames.Name=a;
+                codeNames.index=jd[a];
+            }
+        }
+        return codeNames
+    }
+    //将code分别进行分解得到省的名称，市的名称，区的名称,将这些名字进行合并,并将最后一个编码放在codes上
+    function codeToName(code){
+        var yy=[];
+        var xx={};
+        xx.Name=""
+        var PS=diffName(cutNum(code,2)+"0000");
+      var CS=diffName(cutNum(code,4)+"00");
+       var QS=diffName(code)
+        yy.push(PS)
+       yy.push(CS)
+       yy.push(QS);
+        console.log(yy[1].Name+"__"+yy[1].index)
+        for(var i=0;i<yy.length-1;i++){
+            xx.Name+=yy[i].Name+","
+        }
+        xx.Name+=yy[2].Name;
+        xx.code=yy[2].index
+        return xx
+    }
+  var ss="130202";
+  var ssValue=codeToName(ss);
+    $(".content").html(ssValue.Name).attr("code",ssValue.code);
     selectYes.addEventListener('click', function() {
+        $(".content").html(up1Data.value+","+up2Data.value+","+ up3Data.value).attr("code",up3Data.key);
         animaed.finish();//
         console.log(up1Data);
         console.log(up2Data);
